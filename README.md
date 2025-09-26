@@ -1,23 +1,23 @@
 # nvidia-ai-infrastructure
 
-## Introduction to NVIDIA-AI Infrastructure (NCP-AI)
+## Introdução à Infraestrutura de IA da NVIDIA (NCP-AI)
 
-## Foundations of AI Infrastructure
+## Fundamentos de Infraestrutura de IA
 
-## GPU Resource Management and Virtualization
+## Gerenciamento de Recursos de GPU e Virtualização
 
-## Storage, Networking, and Data Pipelines for AI
+## Armazenamento, Redes e Pipelines de Dados para IA
 
-## AI Cluster Orchestration and Scalability
+## Orquestração e Escalabilidade de Clusters de IA
 
-## Performance Optimization & Monitoring
+## Otimização de Desempenho e Monitoramento
 
-## Security, Compliance, and Data Governance
+## Segurança, Conformidade e Governança de Dados
 
-## Edge AI Infrastructure and Integration
+## Infraestrutura de IA na Edge e Integração
 
-## NGC, Triton Inference Server & Deployment
+## NGC, Triton Inference Server e Implantação
 
-## Real-World Projects and Enterprise Workflows
+## Projetos do Mundo Real e Fluxos de Trabalho Empresariais
 
-## Final Capstone + Certification Prep
+## Projeto Final e Preparação para Certificação

@@ -16,8 +16,6 @@ A aceleração por GPU revolucionou os pipelines de IA/ML ao otimizar cada etapa
 ### Visão Geral do Ecossistema NVIDIA (CUDA, Triton, NGC)
 O ecossistema NVIDIA constitui uma plataforma abrangente e integrada para IA enterprise, centrada em três pilares principais: CUDA fornece o modelo de programação paralela que habilita a aceleração por GPU; Triton Inference Server oferece um ambiente unificado para deployment de modelos em produção com suporte a múltiplos frameworks e otimizações de performance; e o NGC (NVIDIA GPU Cloud) funciona como um catálogo de softwares, modelos pré-treinados e containers otimizados que aceleram o desenvolvimento e a implantação de soluções de IA. Juntos, esses componentes formam um stack coeso que simplifica a construção e operação de infraestruturas de IA escaláveis.
 
-## Fundamentos de Infraestrutura de IA
-
 ## Gerenciamento de Recursos de GPU e Virtualização
 
 ## Armazenamento, Redes e Pipelines de Dados para IA

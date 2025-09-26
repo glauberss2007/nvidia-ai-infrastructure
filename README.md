@@ -81,7 +81,42 @@ O Kubernetes tornou-se a plataforma padrão para orquestrar cargas de trabalho a
 
 Este laboratório prático oferece uma experiência hands-on para configurar a tecnologia **MIG numa GPU NVIDIA A100**. Os participantes aprenderão a ativar o modo MIG via `nvidia-smi`, a criar e gerir diferentes **perfis de instância** (ex: 1g.5gb, 2g.10gb, 3g.20gb) que dividem a GPU em partições isoladas, e a atribuir essas instâncias a contêineres ou cargas de trabalho específicas. O exercício inclui a verificação da configuração com comandos como `nvidia-smi mig -l` e a exploração de cenários reais, como a execução paralela de múltiplos modelos de inferência ou ambientes de desenvolvimento isolados na mesma GPU física. Este laboratório é essencial para compreender na prática como implementar **multi-inquilinato seguro e eficiente**, maximizando o retorno do investimento em hardware de última geração e preparando a infraestrutura para ambientes de produção escaláveis.
 
+#### 📋 Pré-requisitos
 
+- Sistema com **NVIDIA A100 GPU**
+- Ubuntu 20.04+ (bare metal ou VM)
+- Docker & Kubernetes (v1.20+)
+- nvidia-container-toolkit, nvidia-docker2
+- NVIDIA GPU Driver (465+)
+- nvidia-smi, kubectl, helm
+
+#### 🚀 Execução do Laboratório
+
+Execute os scripts na ordem:
+
+```bash
+# 1. Habilitar modo MIG
+chmod +x scripts/1-enable-mig.sh
+./scripts/1-enable-mig.sh
+
+# 2. Criar instâncias MIG
+chmod +x scripts/2-create-mig-instances.sh
+./scripts/2-create-mig-instances.sh
+
+# 3. Implantar device plugin no Kubernetes
+chmod +x scripts/3-deploy-device-plugin.sh
+./scripts/3-deploy-device-plugin.sh
+
+# 4. Testar com pod de exemplo
+chmod +x scripts/4-deploy-test-pod.sh
+./scripts/4-deploy-test-pod.sh
+
+# Para monitoramento 
+kubectl apply -f manifests/dcgm-exporter.yaml
+
+```
+
+As Instâncias MIG não são persistentes após reboot (use systemd para automação). Ajuste nodeSelector no mig-pod.yaml conforme seu ambiente e o comando ``nvidia-smi mig -lgip`` para ver perfis disponíveis.
 
 ## Armazenamento, Redes e Pipelines de Dados para IA
 

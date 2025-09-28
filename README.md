@@ -81,43 +81,6 @@ O Kubernetes tornou-se a plataforma padrão para orquestrar cargas de trabalho a
 
 Este laboratório prático oferece uma experiência hands-on para configurar a tecnologia **MIG numa GPU NVIDIA A100**. Os participantes aprenderão a ativar o modo MIG via `nvidia-smi`, a criar e gerir diferentes **perfis de instância** (ex: 1g.5gb, 2g.10gb, 3g.20gb) que dividem a GPU em partições isoladas, e a atribuir essas instâncias a contêineres ou cargas de trabalho específicas. O exercício inclui a verificação da configuração com comandos como `nvidia-smi mig -l` e a exploração de cenários reais, como a execução paralela de múltiplos modelos de inferência ou ambientes de desenvolvimento isolados na mesma GPU física. Este laboratório é essencial para compreender na prática como implementar **multi-inquilinato seguro e eficiente**, maximizando o retorno do investimento em hardware de última geração e preparando a infraestrutura para ambientes de produção escaláveis.
 
-#### 📋 Pré-requisitos
-
-- Sistema com **NVIDIA A100 GPU**
-- Ubuntu 20.04+ (bare metal ou VM)
-- Docker & Kubernetes (v1.20+)
-- nvidia-container-toolkit, nvidia-docker2
-- NVIDIA GPU Driver (465+)
-- nvidia-smi, kubectl, helm
-
-#### 🚀 Execução do Laboratório
-
-Execute os scripts na ordem:
-
-```bash
-# 1. Habilitar modo MIG
-chmod +x scripts/1-enable-mig.sh
-./scripts/1-enable-mig.sh
-
-# 2. Criar instâncias MIG
-chmod +x scripts/2-create-mig-instances.sh
-./scripts/2-create-mig-instances.sh
-
-# 3. Implantar device plugin no Kubernetes
-chmod +x scripts/3-deploy-device-plugin.sh
-./scripts/3-deploy-device-plugin.sh
-
-# 4. Testar com pod de exemplo
-chmod +x scripts/4-deploy-test-pod.sh
-./scripts/4-deploy-test-pod.sh
-
-# Para monitoramento 
-kubectl apply -f manifests/dcgm-exporter.yaml
-
-```
-
-As Instâncias MIG não são persistentes após reboot (use systemd para automação). Ajuste nodeSelector no mig-pod.yaml conforme seu ambiente e o comando ``nvidia-smi mig -lgip`` para ver perfis disponíveis.
-
 ## Armazenamento, Redes e Pipelines de Dados para IA
 
 ### Arquiteturas de Armazenamento para Cargas de Trabalho de IA (local, compartilhado, objeto)
@@ -140,107 +103,22 @@ Um pipeline de dados de IA bem projetado é um sistema interconectado que abrang
 
 Neste laboratório prático, consolidamos todos os conceitos anteriores para projetar e implementar um pipeline completo. Isso envolve a configuração de uma arquitetura de armazenamento em camadas (ex: S3 para dados brutos, BeeGFS/Lustre para datasets de treinamento), a configuração de rede de alta velocidade (InfiniBand com RDMA) e a construção do fluxo de dados em si. Você poderá orquestrar um pipeline que ingere dados de um stream em tempo real (Kafka), realiza ETL acelerada, treina um modelo em um cluster de GPUs interconectados com NVLink/InfiniBand e, finalmente, implanta o modelo para inferência em um ambiente escalável como Kubernetes, utilizando otimizações para evitar gargalos e garantir a máxima utilização dos recursos.
 
-#### 🎯 Objetivo
-
-Criar um pipeline completo de IA demonstrando:
-- **ETL** com NVIDIA DALI
-- **Treinamento** com PyTorch
-- **Inference** com Triton Server
-- **Otimização** com GPU
-
-#### 🛠️ Pré-requisitos
-
-- NVIDIA GPU (A100, V100, RTX 3090, etc)
-- Docker e NVIDIA Container Toolkit
-- Python 3.8+
-
-#### ⚡ Configuração Rápida
-
-```bash
-# 1. Clonar repositório
-git clone https://github.com/seu-usuario/lab-ai-pipeline.git
-cd lab-ai-pipeline
-
-# 2. Executar setup automático
-chmod +x scripts/setup_environment.sh
-./scripts/setup_environment.sh
-
-# 3. Ativar ambiente virtual
-source venv/bin/activate
-
-```
-
-Data Source → ETL (DALI) → Training (PyTorch) → Model → Triton Server → Inference Client
-
-Treinar o modelo:
-
-```
-python src/train_model.py
-```
-
-Iniciar o servidor triton:
-
-```bash
-# Usando Docker Compose (recomendado)
-docker-compose up triton-server
-```
-
-```bash
-# Ou manualmente
-docker run --gpus all -p8000:8000 -p8001:8001 -p8002:8002 \
-  -v$(pwd)/model_repository:/models \
-  nvcr.io/nvidia/tritonserver:24.03-py3 \
-  tritonserver --model-repository=/models
-```
-
-Testar inferencia:
-
-```bash
-python src/inference_client.py
-```
-
-Jupyternotebook:
-```bash
-docker-compose up jupyter
-# Acesse: http://localhost:8888
-```
-
-Benchmark:
-
-```bash
-# Instalar perf_analyzer
-docker exec -it <triton_container> perf_analyzer -m my_model -b 8 -u localhost:8000
-```
-
-Monitoramento: 
-
-```bash
-watch -n 1 nvidia-smi
-```
-
-####Versão Simplificada
-
-Pipeline completo ETL → Treinamento → Inference em 3 arquivos!
-
-## ⚡ Comece Agora
-
-```bash
-# 1. Clone e instale
-git clone <seu-repositorio>
-cd lab-ai-pipeline
-pip install -r requirements.txt
-
-# 2. Treine o modelo
-python train.py
-
-# 3. Inicie o servidor (terminal 1)
-docker run --gpus all -p8000:8000 -p8001:8001 -p8002:8002 -v$(pwd)/model_repository:/models nvcr.io/nvidia/tritonserver:24.03-py3 tritonserver --model-repository=/models
-
-# 4. Teste inference (terminal 2)
-python inference.py
-```
-
 ## Orquestração e Escalabilidade de Clusters de IA
+
+### Kubernetes para Cargas de Trabalho de IA com GPU
+O Kubernetes tornou-se a plataforma fundamental para orquestrar cargas de trabalho de IA em produção, especialmente quando envolvem GPUs. Através do plugin de dispositivo NVIDIA, o Kubernetes pode reconhecer e alocar GPUs nos nós do cluster, permitindo que jobs de treinamento e serviços de inference sejam escalados de forma eficiente. Na indústria, bancos utilizam Kubernetes para isolar jobs de treinamento de modelos de fraude enquanto mantêm serviços de inference de baixa latência, tudo no mesmo cluster. Empresas de healthcare usam namespaces e quotas de recursos para segregar workloads de diferentes projetos de pesquisa, garantindo conformidade com regulamentações enquanto maximizam a utilização dos recursos de GPU.
+
+### Helm, Operators e Autoscaling de Cluster
+Helm funciona como um gerenciador de pacotes para Kubernetes, permitindo implantar stacks completos de IA como Kubeflow ou Triton Inference Server com um único comando. Operators trazem inteligência específica de domínio, automatizando operações complexas como scaling de pods do Triton baseado no tráfego de inference. No varejo, empresas usam HPA (Horizontal Pod Autoscaler) baseado em métricas customizadas de utilização de GPU para dimensionar automaticamente serviços de recomendação de produtos durante picos de tráfego. O Cluster Autoscaler adiciona nós GPU sob demanda para treinamento sazonal e os remove para economizar custos, uma prática comum em e-commerce durante períodos promocionais.
+
+### Integração de Slurm, Kubeflow e MLflow
+A integração dessas ferramentas cria um ambiente completo de MLOps que atende diferentes personas: pesquisadores HPC, cientistas de dados e engenheiros de ML. Slurm oferece escalonamento eficiente para jobs batch de grande escala, comum em instituições financeiras para simulações de risco. Kubeflow automatiza pipelines de retreinamento de modelos, usado por hospitais para atualizar modelos de diagnóstico baseados em novos exames. MLflow fornece rastreabilidade completa, essencial em indústrias regulamentadas onde cada versão de modelo deve ser auditável. Universidades frequentemente combinam Slurm para pesquisa tradicional com Kubeflow para projetos de ML, compartilhando o mesmo cluster de GPUs.
+
+### Topologias de Cluster (On-prem, Cloud, Híbrido)
+A escolha da topologia impacta diretamente custo, desempenho e conformidade. Clusters on-prem, como os baseados em DGX SuperPOD, são preferidos por instituições financeiras e de saúde para dados sensíveis, oferecendo controle total e baixa latência. Cloud nativo é ideal para startups e projetos experimentais, permitindo escalar rapidamente com instâncias GPU especializadas. O modelo híbrido é predominante em empresas estabelecidas: fabricantes mantêm treinamento on-prem para proteger IP, mas usam cloud para inference global. Empresas de energia usam hybrid para processar dados de sensores no edge enquanto consolidam análises na cloud.
+
+### Laboratório: Deploy de Job de Treinamento Multi-GPU no Kubernetes
+Este laboratório prático demonstra como implantar jobs distribuídos de treinamento em clusters Kubernetes com múltiplas GPUs. Através de manifests YAML e usando recursos como NodeSelectors e Tolerations, é possível direcionar jobs para nós específicos com GPUs disponíveis. Empresas de tecnologia implementam este padrão para treinar modelos de linguagem grande distribuídos across múltiplos nós GPU, enquanto serviços de streaming usam abordagem similar para treinar modelos de recomendação em escala. O laboratório também cobre monitoramento com Prometheus para otimizar utilização de recursos, prática adotada por operadores de data center para maximizar ROI em infraestrutura GPU.
 
 ## Otimização de Desempenho e Monitoramento
 

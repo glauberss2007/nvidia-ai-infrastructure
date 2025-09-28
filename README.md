@@ -120,6 +120,126 @@ As Instâncias MIG não são persistentes após reboot (use systemd para automa�
 
 ## Armazenamento, Redes e Pipelines de Dados para IA
 
+### Arquiteturas de Armazenamento para Cargas de Trabalho de IA (local, compartilhado, objeto)
+
+O armazenamento na infraestrutura de IA é um componente crítico de desempenho, pois modelos de grande escala realizam leituras e escritas massivas de dados. Escolher a arquitetura correta — desde SSDs locais (NVMe) para velocidade, armazenamento compartilhado (como NFS ou Lustre) para treinamento distribuído, ou armazenamento de objeto (S3, GCS) para escalabilidade e custo — impacta diretamente a throughput, latência e utilização da GPU. Sistemas do mundo real frequentemente combinam esses tipos em uma arquitetura híbrida e em camadas (hot, warm, cold data) para otimizar custo e performance, garantindo que os GPUs nunca fiquem ociosos esperando por dados.
+
+### Rede de Alta Velocidade: NVLink, Infiniband, RDMA
+
+Em cargas de trabalho de IA distribuída, a rede é tão crucial quanto o poder de computação. Tecnologias como o NVLink da NVIDIA permitem comunicação ultrarrápida entre GPUs no mesmo nó, enquanto o InfiniBand é o padrão-ouro para interconexão de alta largura de banda e baixa latência entre nós em clusters. O RDMA (Remote Direct Memory Access) é fundamental, permitindo a transferência direta de dados entre a memória de máquinas diferentes, contornando a CPU e reduzindo drasticamente a latência e a sobrecarga. A combinação dessas tecnologias, juntamente com features como GPUDirect, é essencial para operações como "all-reduce" durante o treinamento distribuído de modelos grandes, como GPT ou BERT, garantindo que a sincronização de gradientes não se torne um gargalo.
+
+### Gargalos e Otimização no Movimento de Dados
+
+Um gargalo no movimento de dados — seja em E/S de disco, na rede ou no pré-processamento — pode deixar GPUs caros ociosas, aumentando o tempo de treinamento e custos operacionais. Identificar esses pontos é o primeiro passo, utilizando ferramentas como \texttt{iostat}, \texttt{nvtop} ou profilers de framework (TensorFlow, PyTorch). A otimização envolve estratégias como a adoção de NVMe, uso de carregamento de dados multi-thread (ex: \texttt{num\_workers} no PyTorch), prefetching, caching de dados localmente e paralelização do pré-processamento (ex: com NVIDIA DALI). Em nível de rede, tuning de configurações (MTU, buffers) e a adoção de InfiniBand com RDMA são chave para um fluxo de dados contínuo e eficiente do storage até a GPU.
+
+### Design de Pipeline de Dados para IA (ETL + Treinamento + Inferência)
+
+Um pipeline de dados de IA bem projetado é um sistema interconectado que abrange desde a ingestão de dados brutos (ETL) até o treinamento e a inferência. O estágio de ETL, frequentemente orquestrado por ferramentas como Apache Airflow e acelerado por GPUs (RAPIDS, DALI), é responsável por extrair, transformar e carregar dados em um storage acessível. No treinamento, o pipeline deve alimentar os GPUs de forma contínua, usando data loaders paralelizados e formatos eficientes. Para inferência, em lote ou tempo real, servidores de modelo como o Triton Inference Server são utilizados para oferecer baixa latência e alto throughput. Projetar com resiliência, monitoramento e estágios desacoplados (usando filas como Kafka) garante um pipeline robusto e escalável. 
+
+### Laboratório: Projetar um Pipeline de Dados de Ponta a Ponta para IA
+
+Neste laboratório prático, consolidamos todos os conceitos anteriores para projetar e implementar um pipeline completo. Isso envolve a configuração de uma arquitetura de armazenamento em camadas (ex: S3 para dados brutos, BeeGFS/Lustre para datasets de treinamento), a configuração de rede de alta velocidade (InfiniBand com RDMA) e a construção do fluxo de dados em si. Você poderá orquestrar um pipeline que ingere dados de um stream em tempo real (Kafka), realiza ETL acelerada, treina um modelo em um cluster de GPUs interconectados com NVLink/InfiniBand e, finalmente, implanta o modelo para inferência em um ambiente escalável como Kubernetes, utilizando otimizações para evitar gargalos e garantir a máxima utilização dos recursos.
+
+#### 🎯 Objetivo
+
+Criar um pipeline completo de IA demonstrando:
+- **ETL** com NVIDIA DALI
+- **Treinamento** com PyTorch
+- **Inference** com Triton Server
+- **Otimização** com GPU
+
+#### 🛠️ Pré-requisitos
+
+- NVIDIA GPU (A100, V100, RTX 3090, etc)
+- Docker e NVIDIA Container Toolkit
+- Python 3.8+
+
+#### ⚡ Configuração Rápida
+
+```bash
+# 1. Clonar repositório
+git clone https://github.com/seu-usuario/lab-ai-pipeline.git
+cd lab-ai-pipeline
+
+# 2. Executar setup automático
+chmod +x scripts/setup_environment.sh
+./scripts/setup_environment.sh
+
+# 3. Ativar ambiente virtual
+source venv/bin/activate
+
+```
+
+Data Source → ETL (DALI) → Training (PyTorch) → Model → Triton Server → Inference Client
+
+Treinar o modelo:
+
+```
+python src/train_model.py
+```
+
+Iniciar o servidor triton:
+
+```bash
+# Usando Docker Compose (recomendado)
+docker-compose up triton-server
+```
+
+```bash
+# Ou manualmente
+docker run --gpus all -p8000:8000 -p8001:8001 -p8002:8002 \
+  -v$(pwd)/model_repository:/models \
+  nvcr.io/nvidia/tritonserver:24.03-py3 \
+  tritonserver --model-repository=/models
+```
+
+Testar inferencia:
+
+```bash
+python src/inference_client.py
+```
+
+Jupyternotebook:
+```bash
+docker-compose up jupyter
+# Acesse: http://localhost:8888
+```
+
+Benchmark:
+
+```bash
+# Instalar perf_analyzer
+docker exec -it <triton_container> perf_analyzer -m my_model -b 8 -u localhost:8000
+```
+
+Monitoramento: 
+
+```bash
+watch -n 1 nvidia-smi
+```
+
+####Versão Simplificada
+
+Pipeline completo ETL → Treinamento → Inference em 3 arquivos!
+
+## ⚡ Comece Agora
+
+```bash
+# 1. Clone e instale
+git clone <seu-repositorio>
+cd lab-ai-pipeline
+pip install -r requirements.txt
+
+# 2. Treine o modelo
+python train.py
+
+# 3. Inicie o servidor (terminal 1)
+docker run --gpus all -p8000:8000 -p8001:8001 -p8002:8002 -v$(pwd)/model_repository:/models nvcr.io/nvidia/tritonserver:24.03-py3 tritonserver --model-repository=/models
+
+# 4. Teste inference (terminal 2)
+python inference.py
+```
+
 ## Orquestração e Escalabilidade de Clusters de IA
 
 ## Otimização de Desempenho e Monitoramento

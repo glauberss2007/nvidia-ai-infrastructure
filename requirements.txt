@@ -1,0 +1,10 @@
+torch==2.0.1
+torchvision==0.15.2
+nvidia-dali-cuda110==1.28.0
+tritonclient[http]==2.34.0
+jupyterlab==4.0.5
+numpy==1.24.3
+opencv-python==4.8.1.78
+kafka-python==2.0.2
+matplotlib==3.7.2
+pillow==10.0.0

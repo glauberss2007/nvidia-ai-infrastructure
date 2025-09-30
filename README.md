@@ -81,6 +81,22 @@ O Kubernetes tornou-se a plataforma padrão para orquestrar cargas de trabalho a
 
 Este laboratório prático oferece uma experiência hands-on para configurar a tecnologia **MIG numa GPU NVIDIA A100**. Os participantes aprenderão a ativar o modo MIG via `nvidia-smi`, a criar e gerir diferentes **perfis de instância** (ex: 1g.5gb, 2g.10gb, 3g.20gb) que dividem a GPU em partições isoladas, e a atribuir essas instâncias a contêineres ou cargas de trabalho específicas. O exercício inclui a verificação da configuração com comandos como `nvidia-smi mig -l` e a exploração de cenários reais, como a execução paralela de múltiplos modelos de inferência ou ambientes de desenvolvimento isolados na mesma GPU física. Este laboratório é essencial para compreender na prática como implementar **multi-inquilinato seguro e eficiente**, maximizando o retorno do investimento em hardware de última geração e preparando a infraestrutura para ambientes de produção escaláveis.
 
+### Prerequisitos
+- NVIDIA A100 GPU
+- Ubuntu 20.04+
+- Kubernetes 1.20+
+- NVIDIA GPU Driver 465+
+- Helm 3+
+
+### Execucao automatica
+
+Execucao completa do script:
+
+```bash
+chmod +x scripts/setup-mig.sh
+./scripts/setup-mig.sh
+
+
 ## Armazenamento, Redes e Pipelines de Dados para IA
 
 ### Arquiteturas de Armazenamento para Cargas de Trabalho de IA (local, compartilhado, objeto)
@@ -102,6 +118,50 @@ Um pipeline de dados de IA bem projetado é um sistema interconectado que abrang
 ### Laboratório: Projetar um Pipeline de Dados de Ponta a Ponta para IA
 
 Neste laboratório prático, consolidamos todos os conceitos anteriores para projetar e implementar um pipeline completo. Isso envolve a configuração de uma arquitetura de armazenamento em camadas (ex: S3 para dados brutos, BeeGFS/Lustre para datasets de treinamento), a configuração de rede de alta velocidade (InfiniBand com RDMA) e a construção do fluxo de dados em si. Você poderá orquestrar um pipeline que ingere dados de um stream em tempo real (Kafka), realiza ETL acelerada, treina um modelo em um cluster de GPUs interconectados com NVLink/InfiniBand e, finalmente, implanta o modelo para inferência em um ambiente escalável como Kubernetes, utilizando otimizações para evitar gargalos e garantir a máxima utilização dos recursos.
+
+Pipeline completo de dados para AI conectando ETL → Model Training → Inference usando componentes acelerados por GPU.
+
+Pipeline completo de AI que demonstra:
+- ETL com NVIDIA DALI
+- Treinamento de modelo com PyTorch
+- Deploy com Triton Inference Server
+- Monitoramento de performance
+
+🛠️ Tecnologias
+- **Python** (PyTorch)
+- **NVIDIA DALI** (pré-processamento acelerado)
+- **Docker** & **Docker Compose**
+- **Triton Inference Server**
+- **Jupyter Notebook**
+
+### Pré-requisitos
+- NVIDIA GPU com drivers atualizados
+- Docker e NVIDIA Container Toolkit
+- Python 3.8+
+
+### 1. Configuração do Ambiente
+```bash
+# Clone o repositório (se aplicável)
+cd end-to-end-pipeline
+
+# Configura ambiente
+chmod +x scripts/setup_environment.sh
+./scripts/setup_environment.sh
+
+# Opção 1: Executar Usando script
+chmod +x scripts/run_pipeline.sh
+./scripts/run_pipeline.sh
+
+# Opção 2: Executar Diretamente com Python
+python run_pipeline.py
+
+# Inicia Triton Inference Server
+chmod +x scripts/start_triton.sh
+./scripts/start_triton.sh
+
+# Testar Inferencia
+python -c "from src.inference.triton_client import test_triton_connection; test_triton_connection()"
+
 
 ## Orquestração e Escalabilidade de Clusters de IA
 

@@ -1,0 +1,25 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: cleanup-assistant
+  namespace: ai-lab
+spec:
+  ttlSecondsAfterFinished: 3600
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: cleaner
+        image: bitnami/kubectl:latest
+        command: ["/bin/bash"]
+        args:
+        - -c
+        - |
+          echo "🧹 Starting cleanup process..."
+          kubectl delete job/ddp-1node --ignore-not-found=true
+          kubectl delete statefulset/ddp --ignore-not-found=true
+          kubectl delete service/ddp-hs --ignore-not-found=true
+          kubectl delete configmap/ddp-train --ignore-not-found=true
+          kubectl delete pvc/ddp-outputs --ignore-not-found=true
+          kubectl delete namespace/ai-lab --ignore-not-found=true
+          echo "✅ Cleanup completed!"

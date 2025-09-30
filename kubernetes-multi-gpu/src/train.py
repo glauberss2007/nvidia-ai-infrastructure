@@ -1,0 +1,110 @@
+import os
+import argparse
+import torch
+import torch.nn as nn
+import torch.optim as optim
+import torch.distributed as dist
+from torch.nn.parallel import DistributedDataParallel as DDP
+from torchvision import datasets, transforms, models
+from torch.utils.data import DataLoader, DistributedSampler
+
+def parse_args():
+    p = argparse.ArgumentParser()
+    p.add_argument("--epochs", type=int, default=2)
+    p.add_argument("--batch-size", type=int, default=256)
+    p.add_argument("--data-dir", type=str, default="/workspace/data")
+    p.add_argument("--out-dir", type=str, default="/outputs")
+    return p.parse_args()
+
+def setup_distributed():
+    # torchrun sets LOCAL_RANK, RANK, WORLD_SIZE
+    local_rank = int(os.environ.get("LOCAL_RANK", 0))
+    torch.cuda.set_device(local_rank)
+    dist.init_process_group(backend="nccl")
+    return local_rank
+
+def main():
+    args = parse_args()
+    os.makedirs(args.out_dir, exist_ok=True)
+    
+    local_rank = setup_distributed()
+    rank = dist.get_rank()
+    world_size = dist.get_world_size()
+    
+    if rank == 0:
+        print(f"🚀 Starting DDP training with {world_size} processes")
+        print(f"📊 Epochs: {args.epochs}, Batch size: {args.batch_size}")
+
+    # Data transforms
+    transform_train = transforms.Compose([
+        transforms.Resize(224),
+        transforms.RandomHorizontalFlip(),
+        transforms.ToTensor(),
+        transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010))
+    ])
+    
+    # Dataset and sampler
+    dataset = datasets.CIFAR10(
+        root=args.data_dir, 
+        train=True, 
+        download=True,
+        transform=transform_train
+    )
+    
+    sampler = DistributedSampler(
+        dataset, 
+        num_replicas=world_size, 
+        rank=rank,
+        shuffle=True
+    )
+    
+    loader = DataLoader(
+        dataset, 
+        batch_size=args.batch_size, 
+        sampler=sampler,
+        num_workers=4,
+        pin_memory=True
+    )
+    
+    # Model
+    model = models.resnet18(num_classes=10).cuda()
+    model = DDP(model, device_ids=[local_rank])
+    
+    # Loss and optimizer
+    criterion = nn.CrossEntropyLoss().cuda()
+    optimizer = optim.Adam(model.parameters(), lr=1e-3)
+    
+    # Training loop
+    for epoch in range(args.epochs):
+        sampler.set_epoch(epoch)
+        model.train()
+        running_loss = 0.0
+        
+        for i, (x, y) in enumerate(loader):
+            x, y = x.cuda(non_blocking=True), y.cuda(non_blocking=True)
+            
+            optimizer.zero_grad(set_to_none=True)
+            out = model(x)
+            loss = criterion(out, y)
+            loss.backward()
+            optimizer.step()
+            
+            running_loss += loss.item()
+            
+            if i % 50 == 0 and rank == 0:
+                avg_loss = running_loss / (i + 1)
+                print(f"[epoch {epoch}] step {i} avg_loss={avg_loss:.4f}")
+        
+        # Save checkpoint on rank 0
+        if rank == 0:
+            checkpoint_path = os.path.join(args.out_dir, f"resnet18_epoch_{epoch}.pth")
+            torch.save(model.module.state_dict(), checkpoint_path)
+            print(f"💾 Saved checkpoint: {checkpoint_path}")
+    
+    if rank == 0:
+        print("✅ Training completed successfully!")
+    
+    dist.destroy_process_group()
+
+if __name__ == "__main__":
+    main()

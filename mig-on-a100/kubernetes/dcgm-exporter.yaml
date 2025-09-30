@@ -1,0 +1,93 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: monitoring
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dcgm-exporter
+  namespace: monitoring
+  labels:
+    app: dcgm-exporter
+spec:
+  selector:
+    app: dcgm-exporter
+  ports:
+  - port: 9400
+    targetPort: 9400
+    protocol: TCP
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: dcgm-exporter
+  namespace: monitoring
+  labels:
+    app: dcgm-exporter
+spec:
+  selector:
+    matchLabels:
+      app: dcgm-exporter
+  template:
+    metadata:
+      labels:
+        app: dcgm-exporter
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9400"
+        prometheus.io/path: "/metrics"
+    spec:
+      containers:
+      - name: dcgm-exporter
+        image: nvidia/dcgm-exporter:3.2.6-3.2.2-ubuntu20.04
+        args:
+        - "-f"
+        - "/etc/dcgm-exporter/dcp-metrics-included.csv"
+        ports:
+        - containerPort: 9400
+          name: metrics
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1000
+        volumeMounts:
+        - name: config
+          mountPath: /etc/dcgm-exporter
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+      volumes:
+      - name: config
+        configMap:
+          name: dcgm-exporter-config
+      tolerations:
+      - key: nvidia.com/gpu
+        operator: Exists
+        effect: NoSchedule
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dcgm-exporter-config
+  namespace: monitoring
+data:
+  dcp-metrics-included.csv: |
+    # Utilization metrics
+    DCGM_FI_DEV_GPU_UTIL,
+    DCGM_FI_PROF_GR_ENGINE_ACTIVE,
+    DCGM_FI_PROF_SM_ACTIVE,
+    DCGM_FI_PROF_SM_OCCUPANCY,
+    # Memory metrics
+    DCGM_FI_DEV_FB_USED,
+    DCGM_FI_DEV_FB_FREE,
+    # Temperature metrics
+    DCGM_FI_DEV_GPU_TEMP,
+    # Power metrics
+    DCGM_FI_DEV_POWER_USAGE,
+    # MIG metrics
+    DCGM_FI_DEV_MIG_MODE,
+    DCGM_FI_DEV_XID_ERRORS

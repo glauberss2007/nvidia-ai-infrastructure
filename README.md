@@ -180,6 +180,35 @@ A escolha da topologia impacta diretamente custo, desempenho e conformidade. Clu
 ### Laboratório: Deploy de Job de Treinamento Multi-GPU no Kubernetes
 Este laboratório prático demonstra como implantar jobs distribuídos de treinamento em clusters Kubernetes com múltiplas GPUs. Através de manifests YAML e usando recursos como NodeSelectors e Tolerations, é possível direcionar jobs para nós específicos com GPUs disponíveis. Empresas de tecnologia implementam este padrão para treinar modelos de linguagem grande distribuídos across múltiplos nós GPU, enquanto serviços de streaming usam abordagem similar para treinar modelos de recomendação em escala. O laboratório também cobre monitoramento com Prometheus para otimizar utilização de recursos, prática adotada por operadores de data center para maximizar ROI em infraestrutura GPU.
 
+#### 🎯 Objetivo
+Executar treinamento distribuído PyTorch DDP em Kubernetes com:
+- Single-node multi-GPU
+- Multi-node multi-GPU
+
+#### 📋 Pré-requisitos
+- Cluster Kubernetes (v1.24+)
+- NVIDIA GPU drivers + nvidia-container-toolkit
+- NVIDIA K8s device plugin
+- kubectl, helm
+- Mínimo 1 nó GPU (single-node) ou 2 nós GPU (multi-node)
+
+## 🚀 Quick Start
+
+### 1. Setup do Cluster
+```bash
+./scripts/setup-cluster.sh
+
+## 2. Single-node Multi-GPU
+./scripts/deploy-single-node.sh
+
+## 3. Multi-node Multi-GPU
+./scripts/deploy-multi-node.sh
+
+## 4. Monitoramento
+./scripts/monitor-job.sh
+
+```
+
 ## Otimização de Desempenho e Monitoramento
 
 ## Segurança, Conformidade e Governança de Dados

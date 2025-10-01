@@ -278,6 +278,108 @@ Otimizar um modelo de visão computacional PyTorch usando TensorRT, comparando d
 
 ## Segurança, Conformidade e Governança de Dados
 
+### Protegendo Workloads Acelerados por GPU**
+A segurança de cargas de trabalho aceleradas por GPU apresenta desafios únicos em infraestruturas de IA, especialmente em ambientes multi-inquilino onde dados sensíveis, como registros médicos, financeiros ou proprietários, são processados. A NVIDIA aborda essas ameaças através de múltiplas camadas de segurança integradas diretamente no *hardware*, incluindo *Secure Boot* para integridade do *firmware*, particionamento de memória via MIG e proteções ECC, estabelecendo uma base confiável para IA segura. Nos níveis de *software* e cluster, a segurança se estende por meio de *toolkits* de contêineres verificados, monitoramento contínuo e políticas do Kubernetes, criando uma estratégia de defesa em profundidade essencial para proteger sistemas de IA em escala.
+
+### Criptografia e Controle de Acesso (DPUs, DOCA)**
+A criptografia e o controle de acesso formam a base da segurança de dados em infraestruturas de IA, protegendo informações sensíveis em repouso e em trânsito. Em clusters de GPU compartilhados, esses controles previnem a exposição cruzada entre inquilinos. Os DPUs (*Data Processing Units*) da NVIDIA revolucionam essa abordagem ao descarregar funções de segurança diretamente no *hardware* através da arquitetura DOCA. Essas unidades atuam como *gatekeepers* de confiança zero na borda do cluster, aplicando firewalls, criptografia e inspeção de pacotes em linha, sem impactar o desempenho das GPUs, permitindo uma segurança aplicada de forma transparente abaixo da camada de aplicação.
+
+### Controle de Acesso Baseado em Função (RBAC) para Clusters de IA**
+Em clusters de IA multi-inquilino, o RBAC fornece o mecanismo fundamental para governança de acesso, definindo permissões com base em funções, e não em indivíduos. Isso é crítico quando diversos profissionais compartilham recursos de GPU. O RBAC no Kubernetes opera por meio de quatro componentes principais: *Roles*, *RoleBindings*, *ClusterRoles* e *ClusterRoleBindings*, criando um sistema modular que escala eficientemente. Sua eficácia depende da integração com sistemas corporativos de identidade e da aplicação do princípio do privilégio mínimo. Quando combinado com tecnologias como DPUs, o RBAC forma o motor de políticas para uma infraestrutura de confiança zero.
+
+### Conformidade Regulatória: GDPR, HIPAA, FedRAMP**
+A conformidade regulatória é uma obrigação legal e um habilitador de negócios para infraestruturas de IA. O GDPR se aplica a dados de cidadãos europeus, exigindo consentimento explícito e direitos de acesso/exclusão. O HIPAA rege dados de saúde nos EUA, demandando criptografia e logs de auditoria para Informações de Saúde Protegidas (PHI). O FedRAMP padroniza a autorização de serviços em nuvem para o governo dos EUA, exigindo monitoramento contínuo. *Workloads* de IA apresentam desafios únicos de conformidade, e mantê-la requer uma combinação de controles técnicos e processos organizacionais, incorporando a conformidade desde o projeto da infraestrutura.
+
+### Laboratório: Aplicar Políticas de Segurança em Infraestrutura de IA**
+Este laboratório prático concentra-se na proteção de ambientes Kubernetes habilitados para GPU por meio da aplicação de controles de segurança em camadas. Os participantes implementarão políticas RBAC, configurações de segurança de *pods*, segmentação de rede, gerenciamento de *secrets* e TLS, além de governança de recursos para GPUs. O laboratório inclui a configuração de políticas de admissão e telemetria básica com alertas. Cada controle de segurança é validado por testes práticos, consolidando os conceitos teóricos e mostrando como combinar ferramentas da NVIDIA com controles nativos do Kubernetes para criar ambientes de IA seguros e prontos para produção.
+
+
+Proteger um ambiente Kubernetes habilitado para GPU aplicando controles em camadas:
+
+- **RBAC** (Controle de Acesso Baseado em Função)
+- **Segurança de Pods**
+- **Segmentação de Rede**
+- **Secrets & TLS**
+- **Governança de Recursos para GPUs**
+- **Políticas de Admission Control**
+- **Telemetria Básica + Alertas**
+
+### 📋 Pré-requisitos
+- Cluster Kubernetes (v1.25+)
+- kubectl e acesso cluster-admin
+- Pelo menos 1 nó com GPU + NVIDIA device plugin
+- CNI que suporte NetworkPolicy (Calico/Cilium)
+- Opcional: Gatekeeper (OPA) e stack Prometheus/Grafana
+
+### 🚀 Implementação Rápida
+
+```bash
+# Executar implantação completa
+./scripts/deploy-all.sh
+
+# Validar controles de segurança
+./scripts/validate-controls.sh
+
+# Limpar ambiente
+./scripts/cleanup.sh
+
+```
+
+### Namespaces Seguros
+- team-a: Time de Data Science
+- team-b: Time de Engenharia
+
+### Controles Implementados
+- Pod Security Standards (perfil restrito)
+- RBAC com princípio do menor privilégio
+- Quotas de GPU e limites de recursos
+- NetworkPolicies (default-deny + allow-list)
+- Segurança de Workloads (non-root, read-only FS)
+- Admission Control (Gatekeeper)
+- Monitoramento de GPU (DCGM Exporter + Alertas)
+
+### Validação
+Cada controle é validado com testes específicos para garantir efetividade.
+
+### Manutenção
+- Atualizar políticas conforme mudanças nos requisitos
+- Monitorar alertas de segurança
+- Realizar auditorias regulares de RBAC
+
+### How-to
+
+```bash
+
+## Tornar todos os scripts executáveis
+chmod +x ai-security-lab/scripts/*.sh
+
+cd ai-security-lab
+
+# 1. Implantar tudo
+./scripts/deploy-all.sh
+
+# 2. Validar controles
+./scripts/validate-controls.sh
+
+# 3. Testar workloads
+kubectl get pods -n team-a
+kubectl logs -n team-a job/cuda-secure-job
+
+# 4. Limpar (quando necessário)
+./scripts/cleanup.sh
+
+```
+
+O Que Foi Implementado
+1. Namespaces Seguros com Pod Security Standards
+2. RBAC com princípio do menor privilégio
+3. Quotas de GPU e limites de recursos
+4. NetworkPolicies com default-deny
+5. TLS Secrets para comunicação segura
+6. Workloads Seguros (non-root, read-only FS)
+7. Admission Control com Gatekeeper
+8. Monitoramento com alertas de segurança
+
 ## Infraestrutura de IA na Edge e Integração
 
 ## NGC, Triton Inference Server e Implantação

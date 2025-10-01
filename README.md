@@ -382,6 +382,93 @@ O Que Foi Implementado
 
 ## Infraestrutura de IA na Edge e Integração
 
+### Edge vs Cloud AI – Implicações de Infraestrutura**
+
+A escolha entre Edge AI e Cloud AI é guiada por trade-offs fundamentais em latência, banda, segurança e escalabilidade. O Edge AI processa dados localmente, sendo crucial para aplicações em tempo real, como veículos autônomos, pois elimina a latência do trajeto até a nuvem. Além disso, ao manter os dados sensíveis no local, o Edge atende a requisitos de privacidade e conformidade regulatória, como GDPR e HIPAA, e reduz a carga na rede ao transmitir apenas metadados ou insights consolidados. Em contrapartida, a Cloud AI oferece escalabilidade elástica quase infinita, permitindo treinar modelos complexos com milhares de GPUs. Na prática, as organizações adotam estratégias híbridas: o Edge lida com a inferência em tempo real e a autonomia local, enquanto a nuvem centraliza o treinamento de modelos, análises aprofundadas e a gestão do ciclo de vida dos sistemas.
+
+### NVIDIA Jetson e Orin para Edge AI**
+
+As plataformas NVIDIA Jetson e Orin são computadores compactos e energeticamente eficientes projetados para executar IA na ponta. Elas trazem o poder da arquitetura GPU NVIDIA para dispositivos embarcados, permitindo inferência de alta performance em robótica, drones, automação industrial e cidades inteligentes. A família Jetson varia do Jetson Nano, para prototipagem, até o mais avançado Xavier NX. A geração Orin, baseada na arquitetura Ampere, oferece um desempenho por watt superior, suportando modelos de linguagem natural e visão computacional complexos em tempo real. Essas plataformas são suportadas pelo SDK JetPack e ferramentas como TensorRT e DeepStream, que otimizam a inferência e permitem a orquestração de frotas de dispositivos, integrando-se perfeitamente em fluxos de trabalho híbridos com a nuvem.
+
+### Aprendizado Federado e Inferência Distribuída**
+
+O Aprendizado Federado (Federated Learning) é uma técnica de treinamento colaborativo de modelos de IA em que os dados brutos nunca saem dos dispositivos de edge. Cada dispositivo treina um modelo localmente e envia apenas as atualizações do modelo (não os dados) para um servidor central que agrega essas contribuições. Isso preserva a privacidade, atende a regulamentações e reduz o tráfego de rede. Já a Inferência Distribuída divide a tarefa de executar um modelo de IA entre múltiplos GPUs ou nós de computação, sendo essencial para modelos grandes e para garantir baixa latência e escalabilidade em produção. Juntas, essas técnicas formam um ciclo de feedback: o aprendizado federado melhora o modelo global de forma privada, e a inferência distribuída serve esse modelo atualizado de forma eficiente na ponta, criando sistemas de IA escaláveis, seguros e de alto desempenho.
+
+### Casos de Uso: Cidades Inteligentes, Varejo e IIoT**
+
+A Edge AI está transformando setores como Cidades Inteligentes, Varejo e IoT Industrial (IIoT). Nas **Cidades Inteligentes**, câmeras com IA na ponta analisam vídeo em tempo real para gestão de tráfego e segurança pública, enviando apenas metadados para a nuvem, o que garante eficiência e privacidade. No **Varejo**, sistemas de checkout automatizado, recomendações personalizadas em loja e monitoramento de estoque são habilitados por inferência local, melhorando a experiência do cliente e a eficiência operacional. No **IIoT**, a IA na ponta viabiliza a manutenção preditiva de máquinas, a detecção de anomalias em tempo real em linhas de produção e a operação segura de robôs colaborativos, aumentando a produtividade e reduzindo custos e tempo de inatividade.
+
+### Laboratório: Implantar um Modelo de IA no Jetson Nano**
+
+O objetivo deste laboratório prático é implantar um modelo de classificação de imagem em tempo real em uma placa Jetson Nano, utilizando o TensorRT para otimização nativa de desempenho. Os participantes irão preparar o dispositivo, configurar perfis de energia e térmicos, converter um modelo no formato ONNX para um motor TensorRT e executar a inferência usando Python. Opcionalmente, o modelo pode ser integrado a um pipeline simples no DeepStream para processamento de vídeo. A atividade permite praticar a conversão e aceleração de modelos, o desenvolvimento de aplicações de inferência na ponta e a medição de métricas de desempenho críticas, como FPS (frames por segundo) e latência diretamente no dispositivo.
+
+Este laboratório demonstra a implantação de um modelo de classificação de imagem ResNet50 no Jetson Nano usando TensorRT para inferência otimizada.
+
+## 📋 Pré-requisitos
+
+- **Hardware**: Jetson Nano 4GB, fonte 5V 4A, micro-SD 32GB+, cooler
+- **Software**: JetPack 4.6+, Python 3.6+
+
+## 🚀 Instalação Rápida
+
+```bash
+# Clone o repositório
+git clone https://github.com/seu-usuario/jetson-nano-ai-lab.git
+cd jetson-nano-ai-lab
+
+# Execute o script de setup
+chmod +x scripts/setup_jetson.sh
+./scripts/setup_jetson.sh
+```
+
+### 🔧 Configuração do Sistema
+
+#### 1. Modo de Alto Desempenho
+```bash
+sudo nvpmodel -m 0
+sudo jetson_clocks
+```
+
+#### 2. Configurar Swap
+```bash
+sudo fallocate -l 4G /swapfile
+sudo chmod 600 /swapfile
+sudo mkswap /swapfile
+sudo swapon /swapfile
+echo '/swapfile swap swap defaults 0 0' | sudo tee -a /etc/fstab
+```
+
+### 🧠 Preparação do Modelo
+
+#### Opção A: Exportar do Workstation
+```bash
+python scripts/export_model.py
+scp resnet50.onnx usuario@ip-do-nano:/caminho/do/projeto/
+```
+
+#### Opção B: Build no Jetson
+```bash
+chmod +x scripts/build_engine.sh
+./scripts/build_engine.sh
+```
+
+#### 🏃‍♂️ Execução da Inferência
+
+```bash
+python src/infer_trt.py --engine resnet50_fp16.plan --image caminho/da/imagem.jpg
+```
+
+#### 📊 DeepStream (Opcional)
+
+```bash
+deepstream-app -c configs/ds_resnet.txt
+```
+
+#### 📈 Performance
+
+- Latência esperada: 15-30ms (FP16)
+- Throughput: 30-60 FPS
+
 ## NGC, Triton Inference Server e Implantação
 
 ## Projetos do Mundo Real e Fluxos de Trabalho Empresariais

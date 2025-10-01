@@ -211,6 +211,71 @@ Executar treinamento distribuído PyTorch DDP em Kubernetes com:
 
 ## Otimização de Desempenho e Monitoramento
 
+### Profiling de Workloads em GPU (Nsight, DLProf, nvtop)**
+
+O profiling de workloads em GPU é fundamental para identificar gargalos de performance que impedem o aproveitamento máximo do hardware. O **Nsight Systems** fornece uma visão macro da interação entre CPU e GPU, permitindo identificar tempos ociosos, problemas de sincronização e sobreposição de transferências de dados. Já o **Nsight Compute** oferece análise granular de kernels CUDA, revelando métricas críticas como ocupação, throughput de instruções e eficiência de warps. Para workloads específicos de deep learning, o **DLProf** realiza profiling camada por camada, detectando se operações estão utilizando tensor cores adequadamente ou executando em precisões não otimizadas. Complementarmente, o **nvtop** serve como ferramenta de monitoramento em tempo real via terminal, ideal para verificação rápida de utilização em ambientes multi-GPU.
+
+### Métricas de GPU, Telemetria e Ferramentas de Alertas**
+
+A telemetria contínua de GPUs é essencial para operações em produção. Métricas críticas incluem utilização de Streaming Multiprocessors, consumo de memória, temperatura, consumo energético e taxas de erro ECC. O **NVIDIA SMI** fornece snapshots básicos, enquanto o **Data Center GPU Manager (DCGM)** oferece monitoramento em escala com integração nativa ao **Prometheus** para armazenamento de séries temporais. Esta telemetria permite a criação de dashboards no **Grafana** para visualização de tendências e configuração de alertas proativos para condições como superaquecimento, subutilização ou degradação de hardware, podendo ser integrados a sistemas de resposta a incidentes como PagerDuty.
+
+### TensorRT e Otimização de Modelos**
+
+O **TensorRT** é o SDK especializado da NVIDIA para otimização de inferência, transformando modelos treinados em motores de execução altamente eficientes. Suas técnicas de otimização incluem **layer fusion** (combinação de operações em kernels únicos), **mixed precision inference** (execução em FP16/INT8 com calibração para manter acurácia), **dynamic tensor memory** (gerenciamento eficiente de memória) e **kernel autotuning** (seleção automática dos melhores kernels para cada GPU). Estas otimizações tipicamente resultam em ganhos de 4-6x em throughput e redução de latência, sendo particularmente valiosas em aplicações onde tempo de resposta é crítico.
+
+### Diagnóstico e Ajuste de Gargalos**
+
+O diagnóstico sistemático de gargalos requer análise holística de toda a stack de AI. Gargalos comuns incluem: **coordenação CPU-GPU** (GPU ociosa esperando por dados), **utilização subótima de GPU** (kernels ineficientes ou batch sizes pequenos), **limitações de banda de memória**, **IO lento** em pipelines de dados e **saturação de rede** em treinamento distribuído. Ferramentas como Nsight Systems e métricas do NVIDIA SMI permitem identificar estes pontos de estrangulamento, enquanto estratégias de tuning incluem ajuste de batch size, precisão mista, sobreposição de computação e comunicação, memory pinning, RDMA e otimização de parâmetros de lançamento de kernels.
+
+### Laboratorio: Otimização de Pipeline de Inferência com TensorRT**
+
+Este laboratório prático guia na otimização de um modelo PyTorch de visão computacional, estabelecendo primeiro uma baseline em FP32 e subsequentemente aplicando otimizações do TensorRT em FP16 e potencialmente INT8. A integração com **Triton Inference Server** permite explorar otimizações do lado do servidor como **dynamic batching** (agrupamento dinâmico de requisições) e **multiple model instances** (múltiplas instâncias para paralelismo). As métricas de latência e throughput são medidas em cada etapa, demonstrando o impacto tangível das otimizações em cenários reais de inferência.
+
+### 🎯 Objetivo
+Otimizar um modelo de visão computacional PyTorch usando TensorRT, comparando desempenho entre:
+- Baseline FP32 (ONNX)
+- TensorRT FP16 
+- TensorRT INT8 (opcional)
+
+### 📋 Pré-requisitos
+- 1× NVIDIA GPU (A100/RTX/etc.)
+- Linux (Ubuntu 20.04+)
+- Docker + NVIDIA Container Toolkit
+- ~10GB de espaço em disco
+
+### 🚀 Quick Start
+
+#### 1. Configurar Ambiente
+```bash
+./scripts/setup-environment.sh
+
+# Exportar ONNX + construir engines + benchmark
+./scripts/run-complete-pipeline.sh
+
+# EWxecucao manual
+# 1. Exportar modelo para ONNX
+./scripts/export-onnx.sh
+
+# 2. Construir engines TensorRT
+./scripts/build-tensorrt-engines.sh
+
+# 3. Iniciar servidor Triton
+./scripts/start-triton-server.sh
+
+# 4. Executar benchmarks
+./scripts/run-benchmarks.sh
+
+# 5. Validar correção
+./scripts/validate-correctness.sh
+```
+
+### O Que Esperar
+1. Baseline FP32: ~100-200 ms de latência
+2. TensorRT FP16: 2-3x speedup vs FP32
+3. TensorRT INT8: 3-4x speedup vs FP32 (com pequena perda de precisão)
+4. Dynamic Batching: Melhora throughput em 2-5x
+5. Multi-instance: Melhor utilização da GPU
+
 ## Segurança, Conformidade e Governança de Dados
 
 ## Infraestrutura de IA na Edge e Integração

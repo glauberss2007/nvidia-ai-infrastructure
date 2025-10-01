@@ -1,0 +1,41 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  namespace: monitoring
+  name: gpu-security-alerts
+  labels:
+    app: kube-prometheus-stack
+    release: prometheus
+spec:
+  groups:
+  - name: gpu-anomalies
+    rules:
+    - alert: GpuUtilizationAnomaly
+      expr: avg_over_time(DCGM_FI_DEV_GPU_UTIL[5m]) > 95
+      for: 10m
+      labels:
+        severity: warning
+        namespace: team-a
+      annotations:
+        summary: "High sustained GPU utilization detected"
+        description: "GPU utilization in namespace {{ $labels.namespace }} has been above 95% for 10 minutes. Possible runaway job or unauthorized workload."
+        
+    - alert: GpuOverTemp
+      expr: DCGM_FI_DEV_GPU_TEMP > 85
+      for: 5m
+      labels:
+        severity: critical
+        namespace: team-a
+      annotations:
+        summary: "GPU temperature critical"
+        description: "GPU temperature in namespace {{ $labels.namespace }} is above 85°C. Check cooling, throttling, or abusive workload."
+        
+    - alert: GpuPowerAnomaly
+      expr: DCGM_FI_DEV_POWER_USAGE > 250
+      for: 5m
+      labels:
+        severity: warning
+        namespace: team-a
+      annotations:
+        summary: "High GPU power consumption"
+        description: "GPU power consumption in namespace {{ $labels.namespace }} is unusually high. Possible cryptomining or misconfigured workload."

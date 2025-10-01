@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: LimitRange
+metadata:
+  namespace: team-a
+  name: defaults
+spec:
+  limits:
+  - type: Container
+    default:
+      cpu: "1"
+      memory: "2Gi"
+    defaultRequest:
+      cpu: "250m"
+      memory: "512Mi"
+  - type: Pod
+    min:
+      cpu: "100m"
+      memory: "128Mi"

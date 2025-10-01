@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  namespace: monitoring
+  name: dcgm-exporter
+  labels:
+    app: dcgm-exporter
+spec:
+  selector:
+    matchLabels:
+      app: dcgm-exporter
+  template:
+    metadata:
+      labels:
+        app: dcgm-exporter
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9400"
+        prometheus.io/path: "/metrics"
+    spec:
+      hostNetwork: true
+      containers:
+      - name: dcgm-exporter
+        image: nvcr.io/nvidia/k8s/dcgm-exporter:3.1.7-3.1.4-ubuntu20.04
+        args:
+        - "-f"
+        - "/etc/dcgm-exporter/dcp-metrics-included.csv"
+        ports:
+        - containerPort: 9400
+          name: metrics
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1000
+          capabilities:
+            drop:
+            - ALL
+        volumeMounts:
+        - name: config
+          mountPath: /etc/dcgm-exporter
+        resources:
+          limits:
+            nvidia.com/gpu: 1
+          requests:
+            nvidia.com/gpu: 1
+      volumes:
+      - name: config
+        configMap:
+          name: dcgm-exporter-config
+      tolerations:
+      - key: nvidia.com/gpu
+        operator: Exists
+        effect: NoSchedule
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  namespace: monitoring
+  name: dcgm-exporter-config
+data:
+  dcp-metrics-included.csv: |
+    DCGM_FI_DEV_GPU_UTIL,GPU utilization
+    DCGM_FI_DEV_MEM_CLOCK,Memory clock
+    DCGM_FI_DEV_GPU_TEMP,GPU temperature
+    DCGM_FI_DEV_POWER_USAGE,Power usage
+    DCGM_FI_DEV_TOTAL_ENERGY_CONSUMPTION,Total energy consumption

@@ -1,0 +1,48 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  namespace: team-a
+  name: cuda-secure-job
+  labels:
+    app: cuda-vectoradd
+    security-tier: restricted
+spec:
+  backoffLimit: 0
+  template:
+    metadata:
+      labels:
+        app: cuda-vectoradd
+    spec:
+      serviceAccountName: ds-runner
+      restartPolicy: Never
+      containers:
+      - name: cuda
+        image: nvcr.io/nvidia/k8s/cuda-sample:vectoradd-cuda11.7.0-ubi8
+        command: ["/bin/bash", "-c", "/vectorAdd && sleep 300"]
+        resources:
+          limits:
+            nvidia.com/gpu: 1
+            cpu: "1"
+            memory: "2Gi"
+          requests:
+            nvidia.com/gpu: 1
+            cpu: "500m"
+            memory: "1Gi"
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          runAsUser: 1000
+          runAsGroup: 1000
+          capabilities:
+            drop:
+            - ALL
+          seccompProfile:
+            type: RuntimeDefault
+        volumeMounts:
+        - name: tmp
+          mountPath: /tmp
+          readOnly: false
+      volumes:
+      - name: tmp
+        emptyDir: {}

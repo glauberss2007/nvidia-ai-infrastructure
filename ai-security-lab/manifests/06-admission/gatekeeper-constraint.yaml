@@ -1,0 +1,20 @@
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sApprovedImages
+metadata:
+  name: only-approved-registries
+spec:
+  match:
+    kinds:
+    - apiGroups: [""]
+      kinds: ["Pod"]
+    - apiGroups: ["apps"]
+      kinds: ["Deployment", "StatefulSet", "ReplicaSet"]
+    - apiGroups: ["batch"]
+      kinds: ["Job", "CronJob"]
+    namespaces: ["team-a", "team-b"]
+  parameters:
+    registries:
+    - "nvcr.io/"
+    - "gcr.io/"
+    - "docker.io/library/nginx"
+    - "docker.io/library/busybox"

@@ -95,7 +95,7 @@ Execucao completa do script:
 ```bash
 chmod +x scripts/setup-mig.sh
 ./scripts/setup-mig.sh
-
+```
 
 ## Armazenamento, Redes e Pipelines de Dados para IA
 
@@ -659,3 +659,66 @@ Escolha UM domínio para focar seu projeto:
 
 
 ## Projeto Final e Preparação para Certificação
+
+### Exam Blueprint and Common Pitfalls
+
+**Objetivo:** Preparar estrategicamente para o exame de certificação NVIDIA, entendendo sua estrutura e armadilhas comuns.
+
+**Detalhes:**
+- **Estrutura do Exame:** 2 horas de duração, com questões de múltipla escolha e cenários baseados em casos reais
+- **Distribuição de Conteúdo:**
+  - 25%: Pipelines de dados e orquestração
+  - 20%: Otimização de performance
+  - 15%: Segurança, compliance e governança
+  - 20%: Fundamentos GPU e gerenciamento de recursos
+  - 20%: Edge infrastructure, Triton deployment e casos empresariais
+
+**Armadilhas Comuns:**
+- Subestimar questões de compliance (GDPR, HIPAA)
+- Gerenciamento inadequado do tempo
+- Focar apenas em basics de GPU em vez de orquestração e pipelines
+- Memorização em vez de prática de design end-to-end
+
+### Flashcards: Concepts, Commands, Tools
+
+**Objetivo:** Reforço rápido de conceitos críticos através de revisão ativa.
+
+**Conteúdo Abordado:**
+- Comandos essenciais de Kubernetes para GPU
+- Configurações do Triton Inference Server
+- Comandos de monitoramento com DCGM
+- Conceitos de MIG (Multi-Instance GPU) e vGPU
+- Ferramentas do ecossistema NVIDIA
+
+**Benefício:** Permite revisão rápida antes do exame e reforça a retenção de comandos e conceitos técnicos.
+
+### Capstone Project: End-to-End AI Infrastructure Design**
+
+**Objetivo:** Projeto de consolidação que aplica todo o conhecimento do curso em um cenário empresarial real.
+
+**Escopo:**
+- Design completo de infraestrutura de IA
+- Arquitetura de pipeline end-to-end (dados → treinamento → deployment → monitoramento)
+- Considerações de segurança e compliance
+- Escalabilidade e otimização de custos
+- Apresentação para stakeholders
+
+
+### Certification Pathways and Next Steps** 🗺️
+
+**Trilhas de Certificação NVIDIA:**
+- **Nível Associate:** Fundamentos (NCA)
+- **Nível Professional:** Infraestrutura avançada (NCP)
+- **Nível Expert:** Liderança em sistemas de IA completos
+
+**Certificações Complementares:**
+- NCP AIO (AI Operations)
+- Especializações em cloud (AWS, Azure, Google Cloud)
+- NPO (Simulation and Digital Twins)
+
+**Oportunidades de Carreira:**
+- AI Infrastructure Architect
+- Cloud AI Solutions Engineer  
+- MLOps/AI Ops Specialist
+- GPU Administrator
+- Enterprise AI Consultant

@@ -520,4 +520,142 @@ chmod +x scripts/setup_environment.sh
 
 ## Projetos do Mundo Real e Fluxos de Trabalho Empresariais
 
+### Estudo de Caso: Construindo um Supercomputador de IA
+
+Um supercomputador de IA é uma infraestrutura especializada projetada especificamente para aprendizado profundo em larga escala, comparável a um "carro de Fórmula 1" da computação. Diferente de sistemas convencionais, ele é construído em torno de milhares de GPUs (como NVIDIA A100 ou H100) interconectadas através de tecnologias de ultra-alta velocidade como NVLink e InfiniBand, permitindo comunicação com latência ultrabaixa e largura de banda de 400-800 GB/s. O armazenamento utiliza sistemas de arquivos paralelos como Lustre ou BeeGFS, capazes de entregar terabytes por segundo de throughput para manter as GPUs alimentadas com dados. O resfriamento líquido é essencial para lidar com o consumo de energia de dezenas de megawatts. Na camada de orquestração, ferramentas como Slurm e Kubernetes gerenciam milhares de jobs concorrentes, enquanto frameworks como PyTorch DDP e DeepScale permitem o treinamento distribuído em escala massiva. Exemplos do mundo real incluem o NVIDIA Selene e o Meta RSC, que capacitam o treinamento de modelos com trilhões de parâmetros.
+
+### Estudo de Caso: Infraestrutura de IA Multi-tenant para Saúde
+
+Infraestruturas de IA multi-inquilino permitem que múltiplas organizações ou departamentos (hospitais, laboratórios de pesquisa, empresas farmacêuticas) compartilhem os mesmos recursos de hardware de forma segura e isolada, essencial para ambientes de saúde com dados sensíveis. O isolamento é alcançado através de namespaces do Kubernetes, políticas RBAC (Role-Based Access Control) e tecnologias como MIG (Multi-Instance GPU) para particionar GPUs físicas. Um componente crucial é o *aprendizado federado* (Federated Learning), onde os modelos são treinados localmente em cada instituição e apenas as atualizações do modelo são compartilhadas, mantendo os dados dos pacientes sempre no local de origem. A conformidade com regulamentações rigorosas como HIPAA e GDPR é integrada diretamente no pipeline através de logging automatizado, monitoramento e sistemas de reporte. Frameworks como NVIDIA Clara e FLARE possibilitam a implementação segura dessas infraestruturas colaborativas.
+
+### Fluxo de Trabalho End-to-End: Dados → Treinamento → Implantação → Monitoramento
+
+O fluxo de trabalho completo de IA empresarial é composto por quatro estágios principais conectados por um ciclo de feedback contínuo:
+1.  **Dados:** Envolve pipelines de ETL, lagos de dados (data lakes), engenharia de características (feature engineering) e governança (linhagem e versionamento) para garantir dados de qualidade, auditáveis e reproduzíveis.
+2.  **Treinamento:** Realizado de forma distribuída em clusters de GPUs, com tuning automatizado de hiperparâmetros (usando Ray Tune ou Optuna) e ferramentas como MLflow para garantir a rastreabilidade e reprodutibilidade dos experimentos.
+3.  **Implantação (Deploy):** Os modelos são empacotados em formatos padronizados (como ONNX), containerizados e servidos em produção usando soluções como o Triton Inference Server. Kubernetes e pipelines de MLOps (extensão do CI/CD) garantem uma implantação escalável e confiável.
+4.  **Monitoramento:** Acompanha métricas de desempenho (latência, throughput) e detecta problemas como *model drift* (degradação do modelo) e *data drift* (mudança na distribuição dos dados de entrada). Ferramentas como Prometheus e Grafana fornecem observabilidade, e alertas acionam loops de feedback para retreinamento ou ajustes, fechando o ciclo.
+
+## Laboratório: Projetar e Apresentar uma Infraestrutura de IA Escalável
+
+Este laboratório é uma atividade prática de consolidação (estilo *capstone*) onde os alunos aplicam todo o conhecimento adquirido ao longo do curso. A tarefa simula um cenário do mundo real: projetar e apresentar uma infraestrutura de IA escalável e pronta para o ambiente empresarial. Os alunos devem considerar todos os aspectos abordados, como seleção de hardware (GPUs, networking), orquestração (Kubernetes), armazenamento de dados, pipelines de MLOps, servindo de modelos (ex: Triton), estratégias de monitoramento e considerações de segurança/custo, integrando-os em um desenho arquitetural coeso e justificado.
+
+#### 📋 Objetivo
+Este laboratório prático tem como objetivo consolidar todo o conhecimento adquirido no curso através do **design, documentação e apresentação** de uma infraestrutura de IA escalável que aborde:
+
+- 📊 **Pipelines de dados** robustos e governados
+- 🖥️ **Clusters de treinamento** com GPU de alto desempenho  
+- 🚀 **Estratégias de deployment** enterprise-grade
+- 📈 **Monitoramento e observabilidade** em produção
+- 🔒 **Segurança e conformidade** regulatória
+
+#####  🎯 Casos de Uso Sugeridos
+Escolha UM domínio para focar seu projeto:
+
+| Domínio | Exemplo de Aplicação | Requisitos Especiais |
+|---------|---------------------|---------------------|
+| **🏥 Saúde** | Diagnóstico por imagem (MRI/CT) | HIPAA, baixa latência |
+| **💳 Finanças** | Detecção de fraude em tempo real | PCI-DSS, alta throughput |
+| **🛒 Varejo** | Sistema de recomendação personalizado | Escala sazonal, baixo custo |
+| **🚗 Veículos Autônomos** | Detecção de objetos em tempo real | Edge computing, baixíssima latência |
+| **🏙️ Cidades Inteligentes** | Otimização de tráfego | IoT, processamento distribuído |
+
+#### 🛠️ Ferramentas Recomendadas
+##### Pipeline de Dados
+- **Ingestão**: Apache Kafka, AWS Kinesis, Azure Event Hub
+- **Processamento**: RAPIDS, Apache Spark, Dask
+- **Armazenamento**: AWS S3, Azure Blob Storage, Google Cloud Storage
+- **Governança**: MLflow, Apache Atlas, Data Version Control (DVC)
+
+##### Treinamento
+- **Hardware**: NVIDIA A100/H100, DGX Systems
+- **Orquestração**: Kubernetes, Slurm
+- **Frameworks**: PyTorch DDP, TensorFlow Distributed, Horovod
+- **Experiment Tracking**: MLflow, Weights & Biases, Kubeflow
+
+##### Deployment
+- **Serving**: NVIDIA Triton Inference Server
+- **Formato**: ONNX, TensorRT
+- **Orquestração**: Kubernetes HPA, NVIDIA GPU Operator
+- **APIs**: gRPC, REST
+
+##### Monitoramento
+- **Métricas**: Prometheus, NVIDIA DCGM
+- **Visualização**: Grafana
+- **Drift Detection**: Evidently AI, Arize ML
+- **Logging**: ELK Stack, Splunk
+
+### 🚀 Como Executar o Laboratório
+
+#### **Etapa 1: Definir Caso de Uso e Requisitos** ⭐
+1. Escolha seu domínio de atuação
+2. Defina requisitos específicos de negócio
+3. Estabeleça KPIs mensuráveis
+
+**📝 Template:** `lab-ai-infrastructure-arch/use-case-template.md`
+
+#### Projetar o Pipeline de Dados** 📊
+1. Mapeie fontes de dados e formato
+2. Especifique ferramentas de processamento
+3. Defina estratégia de armazenamento
+4. Implemente governança de dados
+
+#### Arquitetar Ambiente de Treinamento** 🖥️
+1. Selecione hardware (GPU tipo e quantidade)
+2. Defina estratégia de escalabilidade
+3. Escolha orquestrador (Kubernetes vs Slurm)
+4. Configure tracking de experimentos
+
+#### Planejar Estratégia de Deployment** 🚀
+1. Defina formato do modelo (ONNX/TensorRT)
+2. Escolha solução de serving (Triton)
+3. Especifique deployment mode (cloud/on-prem/edge)
+4. Configure auto-scaling policies
+
+#### Definir Camada de Monitoramento** 📈
+1. Estabeleça métricas de infraestrutura
+2. Implemente detecção de drift
+3. Configure telemetria e alertas
+4. Defina políticas de resposta a incidentes
+
+#### Considerações de Segurança** 🔒
+1. Implemente RBAC
+2. Configure criptografia de dados
+3. Alinhe com regulamentações (GDPR/HIPAA)
+4. Estabeleça audit trails
+
+#### Criar Diagrama de Arquitetura** 🎨
+1. Desenhe diagrama end-to-end
+2. Use ferramentas: Draw.io, Lucidchart
+3. Inclua todos os componentes
+4. Documente fluxos de dados
+
+#### Documentar Escolhas de Design** 📝
+1. Justifique cada escolha técnica
+2. Documente trade-offs considerados
+3. Highlight escalabilidade e conformidade
+4. Prepare para discussão com stakeholders
+
+#### Apresentar para Banca** 🎤
+1. Prepare apresentação de 10-15min
+2. Pratique explicação técnica para não-especialistas
+3. Esteja preparado para perguntas
+4. Receba e incorpore feedback
+
+#### Iteração e Melhoria** 🔄
+1. Identifique pontos fracos no design
+2. Proponha melhorias para v2.0
+3. Documente lições aprendidas
+4. Atualize documentação
+
+### 📋 Entregáveis Obrigatórios
+
+| Entregável | Descrição | Formato |
+|------------|-----------|---------|
+| **Diagrama de Arquitetura** | Visão completa do sistema | PNG/PDF/Draw.io |
+| **Documento de Design** | Justificativa técnica detalhada | 3-5 páginas em MD/PDF |
+| **Apresentação** | Slides para stakeholders | 5-7 slides em PDF |
+| **Feedback Summary** | Resumo de feedback recebido | 1 página em MD |
+
+
 ## Projeto Final e Preparação para Certificação

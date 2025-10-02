@@ -1,0 +1,9 @@
+name: "tf_model"
+platform: "tensorflow_savedmodel"
+max_batch_size: 8
+input [
+    { name: "input_tensor" data_type: TYPE_FP32 dims: [224,224,3] }
+]
+output [
+    { name: "softmax_tensor" data_type: TYPE_FP32 dims: [1000] }
+]

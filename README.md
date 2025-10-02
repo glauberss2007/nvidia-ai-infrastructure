@@ -471,6 +471,53 @@ deepstream-app -c configs/ds_resnet.txt
 
 ## NGC, Triton Inference Server e Implantação
 
+### Usando o Catálogo NGC para Modelos Pré-treinados**
+
+O NGC (NVIDIA GPU Cloud) Catalog é um repositório central que oferece containers otimizados para GPU, modelos de IA pré-treinados, scripts de fine-tuning e Helm Charts para Kubernetes. Ele acelera significativamente o desenvolvimento de IA, fornecendo recursos como modelos de visão computacional, processamento de linguagem natural e sistemas de recomendação, todos otimizados pela NVIDIA. Para utilizá-lo, os desenvolvedores criam uma conta gratuita, geram uma chave de API e podem acessar os assets via portal web, CLI ou comandos Docker. Um fluxo típico inclui buscar um modelo pré-treinado (como ResNet50), fine-tuná-lo com dados específicos e implantá-lo via Triton Inference Server, assegurando compatibilidade com versões do CUDA e TensorRT para evitar problemas de desempenho.
+
+### Visão Geral e Arquitetura do Triton Inference Server**
+
+O Triton Inference Server é uma plataforma de código aberto para servir modelos de IA em escala, suportando múltiplos frameworks como TensorFlow, PyTorch, ONNX e TensorRT em um único servidor. Sua arquitetura inclui um repositório de modelos, backends de inferência específicos para cada framework, um agendador inteligente e APIs REST/gRPC. Recursos como execução concorrente de modelos e *dynamic batching* maximizam a utilização da GPU, agregando requisições para aumentar o throughput. O Triton é implantável em VMs, containers Docker, Kubernetes e dispositivos de edge como Jetson, sendo ideal para aplicações em veículos autônomos, saúde e sistemas de recomendação que exigem baixa latência e alta escalabilidade.
+
+### Conjunto de Modelos e Serviço Multi-Framework**
+
+Os *model ensembles* do Triton permitem criar pipelines de inferência encadeando vários modelos, mesmo de frameworks diferentes, em um único fluxo. Isso elimina a necessidade de chamadas externas entre estágios, reduzindo a latência e simplificando o gerenciamento. Por exemplo, um pipeline de classificação de imagem pode incluir um modelo de pré-processamento em TensorFlow, um modelo de inferência principal otimizado com TensorRT e um pós-processamento em PyTorch — tudo gerenciado internamente pelo Triton. Essa capacidade é crucial para aplicações complexas, como pipelines de áudio (ASR + NLP) ou sistemas de direção autônoma, que dependem de múltiplos estágios de processamento.
+
+### Servindo em Escala – Balanceamento de Carga e Design de Alta Disponibilidade**
+
+Para garantir confiabilidade em produção, é essencial escalar o Triton horizontalmente com balanceamento de carga e alta disponibilidade (HA). Estratégias como *round-robin* ou *least connections* distribuem as requisições entre múltiplas instâncias, enquanto configurações ativo-ativo ou ativo-passivo previnem tempos de inatividade. Em Kubernetes, o Horizontal Pod Autoscaler ajusta o número de réplicas com base na utilização de GPU, e ferramentas como Prometheus monitoram a saúde dos nós. Projetos híbridos ou multi-region com balanceadores globais (AWS ALB, Cloudflare) asseguram resiliência contra falhas, atendendo a SLAs rigorosos em aplicações críticas, como cidades inteligentes e veículos autônomos.
+
+### Laboratório: Implantar o Triton com Modelos TensorFlow e ONNX**
+
+Este laboratório prático guiará os alunos na implantação de dois modelos — um do TensorFlow e outro no formato ONNX — no Triton Inference Server. Os participantes configurarão o repositório de modelos, definirão os arquivos de configuração e iniciarão o servidor para servir ambos os modelos simultaneamente. A atividade demonstrará a capacidade do Triton de gerenciar múltiplos frameworks em um único ambiente, com os alunos enviando requisições de inferência via gRPC ou HTTP para validar o funcionamento ponta a ponta.
+
+#### Objetivo
+Implantar modelos TensorFlow e ONNX no NVIDIA Triton Inference Server e servir através de APIs unificadas.
+
+#### Pré-requisitos
+- NVIDIA GPU com drivers instalados
+- Docker e NVIDIA Container Toolkit
+- 50GB de espaço livre em disco
+
+#### Configuração Rápida
+
+```bash
+# Clone o repositório
+git clone <seu-repositorio>
+cd triton-tensorflow-onnx-lab
+
+# Execute o setup
+chmod +x scripts/setup_environment.sh
+./scripts/setup_environment.sh
+
+# Baixe os modelos
+./scripts/download_models.sh
+
+# Inicie o Triton
+./scripts/start_triton.sh
+
+```
+
 ## Projetos do Mundo Real e Fluxos de Trabalho Empresariais
 
 ## Projeto Final e Preparação para Certificação

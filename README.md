@@ -63,7 +63,7 @@
   - [10.4. Certification Pathways and Next Steps](#104-certification-pathways-and-next-steps)
 
 ---
-## Introdução à Infraestrutura de IA da NVIDIA (NCP-AI)
+## 1. Introdução à Infraestrutura de IA da NVIDIA
 
 O design de infraestrutura de IA representa a base essencial para suportar cargas de trabalho de inteligência artificial em escala empresarial. Esta disciplina envolve a criação de ambientes computacionais especializados que integram hardware, software e recursos de rede otimizados especificamente para o ciclo de vida completo de projetos de ML e DL. Um design adequado precisa considerar desde o provisionamento de recursos acelerados para treinamento de modelos até a infraestrutura de inferência para deployment em produção, garantindo escalabilidade, confiabilidade e eficiência de custos ao longo de todo o processo.
 
